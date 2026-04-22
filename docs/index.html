@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EMMA — Extracting Multiple physical parameters from Multimodal Data</title>
+<meta name="description" content="EMMA: a physics-informed multimodal framework for recovering dynamical parameters from video (with optional audio and chart-image support). CVPR 2026." />
+<meta property="og:title" content="EMMA: Extracting Multiple physical parameters from Multimodal Data" />
+<meta property="og:description" content="CVPR 2026. Physics-informed parameter recovery from video, with optional audio and plots." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<!-- KaTeX for equations -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        crossorigin="anonymous"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f5f2ea;
+    --paper: #fbfaf6;
+    --ink: #161616;
+    --ink-2: #2f2f33;
+    --ink-3: #5f5f66;
+    --ink-4: #8a8a92;
+    --rule: #e7e3d5;
+    --rule-strong: #c9bfa4;
+    --accent: #a84318;
+    --accent-ink: #7f3010;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+  .narrow { max-width: 760px; margin-left: auto; margin-right: auto; }
+
+  a { color: var(--accent-ink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* HEADER */
+  header.hero {
+    padding: 76px 0 40px;
+    text-align: center;
+  }
+  .venue {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: rgba(168,67,24,.08);
+    border: 1px solid rgba(168,67,24,.22);
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 22px;
+  }
+  h1.title {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-weight: 600;
+    font-size: clamp(28px, 3.8vw, 40px);
+    line-height: 1.2;
+    letter-spacing: -.015em;
+    margin: 4px auto 16px;
+    color: var(--ink);
+    max-width: 900px;
+  }
+  h1.title .acronym { font-weight: 700; }
+  h1.title em {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink-2);
+  }
+  .tldr {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(15px, 1.6vw, 17px);
+    color: var(--ink-3);
+    max-width: 700px;
+    margin: 0 auto 26px;
+    line-height: 1.5;
+    letter-spacing: -.005em;
+  }
+  .authors-block { margin: 8px auto 32px; max-width: 820px; }
+  ol.authors {
+    list-style: none; padding: 0; margin: 0 0 10px;
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 4px 24px;
+    font-family: "Fraunces", serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  ol.authors li { display: inline-block; }
+  ol.authors a {
+    color: var(--ink); text-decoration: none;
+    border-bottom: 1px dotted var(--rule-strong);
+    padding-bottom: 1px;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  ol.authors a:hover { color: var(--accent); border-color: var(--accent); }
+  .affil-line {
+    font-size: 14px;
+    color: var(--ink-3);
+    margin: 0 0 20px;
+    text-align: center;
+  }
+  .logo-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 28px;
+    margin-top: 4px;
+  }
+  .logo-row .logo-link {
+    display: inline-flex; align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background .15s ease;
+  }
+  .logo-row .logo-link:hover { background: var(--bg-soft); }
+  .logo-row img {
+    height: 42px; width: auto; display: block;
+    opacity: .92;
+  }
+  @media (max-width: 480px) {
+    .logo-row { gap: 18px; }
+    .logo-row img { height: 34px; }
+  }
+
+  .actions {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    font-size: 14px; font-weight: 500;
+    background: var(--ink);
+    color: #fffcf5;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fffcf5; text-decoration: none; }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: #fffcf5; border-color: var(--ink); }
+  .btn svg { width: 14px; height: 14px; }
+
+  hr.rule { border: none; height: 1px; background: var(--rule); margin: 0; }
+
+  /* SECTIONS */
+  section { padding: 64px 0; }
+
+  .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -.015em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  h2 .em { font-style: italic; color: var(--accent); font-weight: 400; }
+
+  p { margin: 0 0 14px; color: var(--ink-2); }
+  p:last-child { margin-bottom: 0; }
+  .lead { font-size: 18px; color: var(--ink-2); line-height: 1.6; max-width: 720px; }
+  .tagline {
+    font-family: "Fraunces", serif;
+    font-size: clamp(18px, 2vw, 22px);
+    color: var(--ink-3);
+    margin: -8px 0 16px;
+    letter-spacing: -.005em;
+  }
+  .tagline .em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  /* PITCH / ADVERTISEMENT */
+  #pitch { padding: 72px 0; }
+  .pitch-head { text-align: center; margin-bottom: 44px; }
+
+  .pitch-rows {
+    display: flex; flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+  .pitch-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pitch-row .problem {
+    font-family: "Fraunces", serif;
+    font-size: 20px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .pitch-row .arrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    color: var(--rule-strong);
+    white-space: nowrap;
+  }
+  .pitch-row .answer { font-size: 16px; color: var(--ink-2); line-height: 1.5; }
+  .pitch-row .answer b { color: var(--accent-ink); font-weight: 600; }
+  @media (max-width: 680px) {
+    .pitch-row { grid-template-columns: 1fr; gap: 8px; padding: 18px 0; }
+    .pitch-row .arrow { display: none; }
+    .pitch-row .problem { font-size: 18px; }
+  }
+
+  /* IO PANEL */
+  .io-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+  .io-col { background: var(--paper); padding: 28px 26px; }
+  .io-col .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+  .io-col h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.25;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .io-col ul { list-style: none; padding: 0; margin: 0; }
+  .io-col li {
+    padding: 10px 0;
+    font-size: 15.5px;
+    color: var(--ink-2);
+    border-top: 1px dashed var(--rule);
+    line-height: 1.45;
+  }
+  .io-col li:first-child { border-top: none; }
+  .io-col.out { background: #fff9ec; }
+  .io-col.out li { color: var(--ink); }
+  .io-col .tag {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: rgba(168,67,24,.08);
+    border: 1px solid rgba(168,67,24,.2);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .io-col .tag.muted {
+    color: var(--ink-3);
+    background: transparent;
+    border-color: var(--rule-strong);
+  }
+  @media (max-width: 680px) { .io-panel { grid-template-columns: 1fr; } }
+
+  /* PHYSICS / EQUATIONS */
+  .eq-block {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 28px 28px;
+    margin-top: 20px;
+  }
+  .eq-block .eq-row {
+    padding: 14px 0;
+    border-top: 1px dashed var(--rule);
+  }
+  .eq-block .eq-row:first-child { border-top: none; padding-top: 0; }
+  .eq-block .eq-row:last-child { padding-bottom: 0; }
+  .eq-block .eq-caption {
+    font-size: 14.5px;
+    color: var(--ink-3);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* FIGURE */
+  figure.fig {
+    margin: 28px 0 0;
+    padding: 18px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    text-align: center;
+  }
+  figure.fig img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+  }
+  figure.fig figcaption {
+    margin-top: 14px;
+    padding: 0 8px;
+    font-size: 14.5px;
+    color: var(--ink-3);
+    line-height: 1.55;
+    text-align: left;
+    max-width: 820px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  figure.fig figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* GALLERY */
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 28px;
+  }
+  .gtile {
+    margin: 0;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .gtile .gt-label {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 12px 16px;
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg-soft);
+  }
+  .gtile .gt-label span {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 400;
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    color: var(--ink-3);
+  }
+  .gtile .gt-bodies {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+  }
+  .gtile .gt-pane {
+    background: var(--paper);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+  .gtile .gt-pane img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .gtile .gt-cap {
+    position: absolute;
+    left: 6px; bottom: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: rgba(22,22,22,.72);
+    color: #fffcf5;
+    backdrop-filter: blur(2px);
+  }
+  .gtile .gt-pane:last-child .gt-cap {
+    background: rgba(168,67,24,.92);
+  }
+  @media (max-width: 820px) {
+    .gallery { grid-template-columns: 1fr; }
+    .gtile .gt-label { font-size: 15.5px; }
+  }
+  @media (max-width: 420px) {
+    .gtile .gt-bodies { grid-template-columns: 1fr; }
+  }
+
+  /* VIDEO */
+  .yt-card {
+    display: block;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 1px solid var(--rule-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .yt-card img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .4s ease;
+  }
+  .yt-card:hover img { transform: scale(1.02); }
+  .yt-overlay {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background: linear-gradient(180deg, rgba(0,0,0,.1) 40%, rgba(0,0,0,.5) 100%);
+  }
+  .yt-play {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: rgba(255,252,245,.95);
+    display: grid; place-items: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    transition: transform .2s ease;
+  }
+  .yt-card:hover .yt-play { transform: scale(1.06); }
+  .yt-play::after {
+    content: ""; width: 0; height: 0;
+    border-left: 20px solid var(--ink);
+    border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent;
+    margin-left: 5px;
+  }
+  .yt-badge {
+    position: absolute;
+    left: 18px; bottom: 18px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(22,22,22,.72);
+    color: #fffcf5;
+    backdrop-filter: blur(3px);
+  }
+
+  /* METHOD */
+  ol.stages {
+    list-style: none; padding: 0; margin: 22px 0 0;
+    counter-reset: stage;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+  }
+  ol.stages li {
+    counter-increment: stage;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 20px;
+  }
+  ol.stages li::before { content: none; }
+  ol.stages .step-tag {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: rgba(168,67,24,.08);
+    border: 1px solid rgba(168,67,24,.22);
+    padding: 4px 9px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  ol.stages h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  ol.stages p { font-size: 15px; line-height: 1.5; margin: 0; color: var(--ink-2); }
+  @media (max-width: 820px) { ol.stages { grid-template-columns: 1fr; } }
+
+  /* RESULTS OVERVIEW */
+  .res-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 30px 0 0;
+  }
+  .res-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 20px 20px;
+  }
+  .res-num {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 44px;
+    line-height: 1;
+    letter-spacing: -.03em;
+    color: var(--accent-ink);
+    margin-bottom: 8px;
+  }
+  .res-num span {
+    font-size: 26px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+  .res-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+  }
+  .res-note {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+  @media (max-width: 820px) { .res-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .res-grid { grid-template-columns: 1fr; } }
+
+  .eval-sub {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin: 44px 0 0;
+    color: var(--ink);
+    letter-spacing: -.01em;
+  }
+
+  /* SYSTEMS */
+  .sys-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;
+  }
+  .sys-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 20px;
+  }
+  .sys-card .cat {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 12px;
+  }
+  .sys-card ul { list-style: none; padding: 0; margin: 0; }
+  .sys-card li {
+    font-size: 15px; padding: 7px 0;
+    border-top: 1px dashed var(--rule);
+    color: var(--ink-2);
+  }
+  .sys-card li:first-child { border-top: none; }
+  @media (max-width: 820px) { .sys-grid { grid-template-columns: 1fr; } }
+
+  /* CITATION */
+  pre.bibtex {
+    background: #141418;
+    color: #e8e1cf;
+    border-radius: 10px;
+    padding: 22px 24px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 20px 0 0;
+    border: 1px solid #2a2a30;
+  }
+  pre.bibtex .k { color: #e89562; }
+  pre.bibtex .v { color: #b8d4c6; }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 0 56px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  footer .row {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 18px;
+  }
+  footer a { color: var(--ink-2); border-bottom: 1px solid var(--rule-strong); }
+  footer a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+  .ack {
+    margin-top: 18px;
+    padding: 16px 20px;
+    background: var(--bg-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--ink-2);
+    max-width: 760px;
+  }
+
+  a:focus-visible, .btn:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hero">
+  <div class="wrap">
+    <span class="venue">CVPR 2026</span>
+    <h1 class="title"><span class="acronym">EMMA:</span> <em>Extracting Multiple physical parameters from Multimodal Data</em></h1>
+    <p class="tldr">Recover the physics of a system from raw video or image, even when the hidden dynamics are unknown.</p>
+
+    <div class="authors-block">
+      <ol class="authors">
+        <li><a href="https://scholar.google.com/citations?hl=en&amp;user=mbAOSW0AAAAJ" target="_blank" rel="noopener">Farhat Shaikh</a></li>
+        <li><a href="https://scholar.google.com/citations?user=UAlc7tEAAAAJ&amp;hl=en" target="_blank" rel="noopener">Ayan Banerjee</a></li>
+        <li><a href="https://scholar.google.com/citations?user=U9bcQkMAAAAJ&amp;hl=en" target="_blank" rel="noopener">Sandeep K. S. Gupta</a></li>
+      </ol>
+      <p class="affil-line">IMPACT Lab, School of Computing &amp; Augmented Intelligence &middot; Arizona State University</p>
+      <div class="logo-row" aria-hidden="true">
+        <a href="https://impact.lab.asu.edu/" target="_blank" rel="noopener" class="logo-link" aria-label="IMPACT Lab">
+          <img src="impact-lab-logo.png" alt="IMPACT Lab" />
+        </a>
+        <a href="https://www.asu.edu/" target="_blank" rel="noopener" class="logo-link" aria-label="Arizona State University">
+          <img src="ASU-logo.png" alt="Arizona State University" />
+        </a>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="42612.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Paper
+      </a>
+      <a class="btn ghost" href="https://github.com/ImpactLabASU/EMMA-CVPR2026" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.38-3.88-1.38-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.3-.52-1.48.11-3.08 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.6.23 2.78.11 3.08.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.26 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+        Code
+      </a>
+      <a class="btn ghost" href="#video">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Video
+      </a>
+    </div>
+  </div>
+</header>
+
+<hr class="rule" />
+
+<!-- GALLERY: real footage beside EMMA's simulated trajectory -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="kicker">Gallery</div>
+    <h2>Real footage, <span class="em">simulated from recovered parameters.</span></h2>
+    <p class="lead">
+      For each system, the left panel is the input video; the right panel is a forward
+      simulation driven by the physical parameters EMMA recovered from that video.
+    </p>
+
+    <div class="gallery">
+      <figure class="gtile">
+        <figcaption class="gt-label">Pendulum <span>L = 0.86 m, &tau; = 0.045</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/pendulum-real.gif" alt="Real pendulum video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/pendulum-sim.gif" alt="Pendulum simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">Free fall <span>g = 9.8 m/s<sup>2</sup></span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/free-fall-real.gif" alt="Real free fall video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/free-fall-sim.gif" alt="Free fall simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">Torricelli drainage <span>k = 0.0132 &radic;m/s</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/torricelli-real.gif" alt="Real draining container video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/torricelli-sim.gif" alt="Torricelli drainage simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">Sliding block <span>&alpha; = 24.7&deg;, &mu; = 0.205</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/sliding-block-real.gif" alt="Real sliding block video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/sliding-block-sim.gif" alt="Sliding block simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">LED decay <span>&gamma; = 0.91</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/led-real.gif" alt="Real LED decay video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/led-sim.gif" alt="LED decay simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">Rover <span>9 params &middot; 5 compared</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/rover-real.gif" alt="Real differential-drive rover video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/rover-sim.gif" alt="Rover trajectory simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+
+      <figure class="gtile">
+        <figcaption class="gt-label">Quadrotor <span>12 params &middot; 7 compared</span></figcaption>
+        <div class="gt-bodies">
+          <div class="gt-pane"><img src="media/drone-real.gif" alt="Real quadrotor video" loading="lazy" /><span class="gt-cap">actual</span></div>
+          <div class="gt-pane"><img src="media/drone-sim.gif" alt="Quadrotor trajectory simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- PITCH / ADVERTISEMENT -->
+<section id="pitch">
+  <div class="wrap">
+    <div class="pitch-head">
+      <div class="kicker">Why EMMA</div>
+      <h2>Give multimodal data (video, image). <span class="em">EMMA figures out the system.</span></h2>
+      <p class="lead" style="margin: 14px auto 0;">
+        Point a camera at the system, or hand EMMA a published plot. Provide its
+        equation of motion. EMMA recovers the dynamical parameters, the hidden
+        actuation, and the coordinate frame, all inside one continuous-time model.
+        When audio is available, the same pipeline fuses it with video to resolve
+        states that video alone cannot see.
+      </p>
+    </div>
+
+    <div class="io-panel">
+      <div class="io-col">
+        <div class="label">You give EMMA</div>
+        <h3>A video or a chart, plus the equation of motion.</h3>
+        <ul>
+          <li><b>Video of the system</b> <span class="tag">visual input</span><br/><span style="color:var(--ink-3);font-size:14px;">raw frames, no masks, no templates</span></li>
+          <li><b>Chart images</b> <span class="tag">visual input</span><br/><span style="color:var(--ink-3);font-size:14px;">an alternative to video, for systems known only through published plots</span></li>
+          <li><b>Governing ODE form</b> <span class="tag">required</span><br/><span style="color:var(--ink-3);font-size:14px;">the parametric structure of <code>dx/dt = f(x, u; θ)</code> and the parameters you want recovered</span></li>
+          <li><b>Audio</b> <span class="tag muted">optional, multimodal</span><br/><span style="color:var(--ink-3);font-size:14px;">paired with video when states or actuation are hidden from the camera</span></li>
+        </ul>
+      </div>
+      <div class="io-col out">
+        <div class="label">EMMA returns</div>
+        <h3>A calibrated, physics-consistent digital twin.</h3>
+        <ul>
+          <li><b>Explicit parameters θ</b><br/><span style="color:var(--ink-3);font-size:14px;">mass, length, damping, thrust and torque coefficients, ...</span></li>
+          <li><b>Implicit dynamics</b><br/><span style="color:var(--ink-3);font-size:14px;">drag, friction, and other unmeasured physical effects</span></li>
+          <li><b>Hidden actuation u(t)</b><br/><span style="color:var(--ink-3);font-size:14px;">latent forcing signals such as wheel speed or rotor rate</span></li>
+          <li><b>Calibration invariants</b><br/><span style="color:var(--ink-3);font-size:14px;">coordinate frame, camera alignment, initial state</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <div class="wrap narrow">
+    <div class="kicker">Abstract</div>
+    <h2>One model, every identifiable parameter.</h2>
+    <p class="lead">
+      We introduce EMMA, a physics-informed multimodal framework that recovers all
+      identifiable dynamical parameters of a system directly from raw video, audio,
+      and image-based time-series observations. Unlike prior video-only approaches
+      that struggle with occluded states, hidden actuation inputs, or assumptions
+      about known initial conditions and coordinate frames, EMMA performs joint
+      inference of explicit parameters, implicit dynamical components, and
+      calibration invariants within a unified continuous-time model.
+    </p>
+    <p class="lead" style="margin-top: 14px;">
+      Across 100+ scenarios including five standard dynamical benchmarks (75 Delfys
+      videos), real-world rover and quadrotor systems with hidden inputs, and
+      simulation-chart case studies spanning biological and chaotic systems, EMMA
+      delivers robust multi-parameter recovery and significantly outperforms existing
+      single-modality and equation-discovery baselines.
+    </p>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- THE PHYSICS (equations) -->
+<section id="physics">
+  <div class="wrap narrow">
+    <div class="kicker">The Physics</div>
+    <h2>EMMA needs your equation of motion.</h2>
+    <p class="lead">
+      EMMA is not data-driven equation discovery. The user supplies the parametric
+      structure of the governing ODE; EMMA solves the <em>inverse</em> problem of
+      recovering its parameters, along with any latent forcing and invariants, from
+      multimodal observations.
+    </p>
+
+    <div class="eq-block">
+      <div class="eq-row">
+        <div>$$ \frac{d\mathbf{x}(t)}{dt} \;=\; f\!\left(\mathbf{x}(t),\,\mathbf{u}(t);\,\boldsymbol{\theta}\right) $$</div>
+        <div class="eq-caption">
+          For a quadrotor, $\mathbf{x}(t)$ is the drone's state (position and velocity),
+          $\mathbf{u}(t)$ is an external input the camera can't see (wind or rotor thrust),
+          and $\boldsymbol{\theta}$ is what EMMA recovers (mass, drag, torque).
+        </div>
+      </div>
+    </div>
+
+    <p class="lead" style="margin-top: 22px;">
+      EMMA closes the loop with a physics-informed loss: simulate forward using the
+      recovered $\boldsymbol{\theta}$, compare to the observed trajectory, and
+      backpropagate through the ODE solver until the two agree.
+    </p>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- VIDEO -->
+<section id="video">
+  <div class="wrap narrow">
+    <div class="kicker">Demo</div>
+    <h2>Rover, in the lab.</h2>
+    <p class="lead">
+      Parameter recovery from a differential-drive rover using synchronized video and
+      audio. The demo shows the rover scenario only; pendulum, quadrotor, and
+      simulation-chart results are covered in the paper.
+    </p>
+    <a class="yt-card" href="https://youtu.be/Uo79pVlM6Rk" target="_blank" rel="noopener" aria-label="Watch EMMA rover demo on YouTube">
+      <img src="emma.png" alt="EMMA demo thumbnail"
+           onerror="this.onerror=null;this.src='https://img.youtube.com/vi/Uo79pVlM6Rk/maxresdefault.jpg';" />
+      <div class="yt-overlay">
+        <div class="yt-play" aria-hidden="true"></div>
+        <div class="yt-badge">EMMA &middot; rover demo</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- METHOD -->
+<section id="method">
+  <div class="wrap">
+    <div class="kicker">Method</div>
+    <h2>Three stages, one continuous-time model.</h2>
+    <p class="tagline"><span class="em">Sense.</span> <span class="em">Learn.</span> <span class="em">Verify.</span></p>
+    <p class="lead">
+      EMMA follows a three-step pipeline from raw data to verified parameters. Video
+      or chart images are the visual input; audio extends the same pipeline into the
+      multimodal setting.
+    </p>
+
+    <ol class="stages">
+      <li>
+        <div class="step-tag">Step 01 &middot; Sense</div>
+        <h3>Video &middot; audio &middot; charts</h3>
+        <p>Raw modalities are converted into time-aligned signals through modality-specific pipelines.</p>
+      </li>
+      <li>
+        <div class="step-tag">Step 02 &middot; Learn</div>
+        <h3>LTC neural network</h3>
+        <p>A Liquid Time-Constant network models the system's latent dynamics in continuous time.</p>
+      </li>
+      <li>
+        <div class="step-tag">Step 03 &middot; Verify</div>
+        <h3>Physics simulation &amp; loss</h3>
+        <p>A differentiable ODE solver simulates the recovered parameters and checks them against the observations.</p>
+      </li>
+    </ol>
+
+    <figure class="fig" style="margin-top: 28px;">
+      <img src="EMMA-arc.png" alt="EMMA architecture: video and audio pipelines feed a shared LTC network and physics-informed digital twin that outputs parameter estimates and a simulated trajectory." />
+      <figcaption>
+        <b>Figure 1. EMMA architecture.</b> Multimodal inputs (video, audio, image)
+        are processed through modality-specific pipelines into unified temporal
+        representations. An LTC-NN learns latent dynamics <code>h(t)</code> and
+        predicts physical parameters <code>θ</code>. A differentiable physics solver
+        validates predictions, enabling end-to-end gradient flow.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- SYSTEMS / EVALUATION -->
+<section id="systems">
+  <div class="wrap">
+    <div class="kicker">Evaluation</div>
+    <h2>Across benchmarks, hardware, and simulation charts.</h2>
+    <p class="lead">
+      EMMA is evaluated on five canonical video benchmarks, real-world platforms with
+      hidden forcing, and chart-based simulation studies spanning biological and
+      chaotic regimes.
+    </p>
+
+    <div class="res-grid">
+      <div class="res-card">
+        <div class="res-num">100<span>+</span></div>
+        <div class="res-label">scenarios evaluated</div>
+        <div class="res-note">5 Delfys systems &middot; 75 videos, real-world rover &amp; quadrotor, plus simulation-chart case studies.</div>
+      </div>
+      <div class="res-card">
+        <div class="res-num">8.8<span>%</span></div>
+        <div class="res-label">mean error &mdash; rover (9 params, 5 compared)</div>
+        <div class="res-note">Recovery under hidden wheel-speed forcing inferred from audio. First work to report this setting.</div>
+      </div>
+      <div class="res-card">
+        <div class="res-num">15.9<span>%</span></div>
+        <div class="res-label">mean error &mdash; quadrotor (12 params, 7 compared)</div>
+        <div class="res-note">Recovery of thrust, torque, and geometry parameters on a real 6-DoF quadrotor.</div>
+      </div>
+      <div class="res-card">
+        <div class="res-num">&gt; 10<span>&times;</span></div>
+        <div class="res-label">lower error on implicit dynamics</div>
+        <div class="res-note">Versus PySINDy across Lotka&ndash;Volterra, Chaotic Lorenz, F8 Crusader, HIV, and AID simulations.</div>
+      </div>
+    </div>
+
+    <p class="lead" style="margin: 28px 0 0;">
+      Compared against <b>PAIG</b>, <b>NIRPI</b>, and <b>Delfys</b> on the video benchmarks
+      and <b>PySINDy</b> on the chart-based simulations. Rover and quadrotor under hidden
+      forcing are reported as first-of-their-kind results. Full tables, ablations, and
+      per-system comparisons are in the <a href="42612.pdf">paper</a>.
+    </p>
+
+    <h3 class="eval-sub">Supported systems</h3>
+    <div class="sys-grid">
+      <div class="sys-card">
+        <div class="cat">Delfys Benchmark</div>
+        <ul>
+          <li>Pendulum</li>
+          <li>Torricelli drainage</li>
+          <li>Sliding block</li>
+          <li>LED decay</li>
+          <li>Free fall</li>
+        </ul>
+      </div>
+      <div class="sys-card">
+        <div class="cat">Real-world platforms</div>
+        <ul>
+          <li>Differential-drive rover</li>
+          <li>6-DoF quadrotor</li>
+          <li>Hidden audio forcing</li>
+        </ul>
+      </div>
+      <div class="sys-card">
+        <div class="cat">Simulation charts</div>
+        <ul>
+          <li>Lotka-Volterra</li>
+          <li>Chaotic Lorenz</li>
+          <li>F8 Crusader</li>
+          <li>HIV therapy</li>
+          <li>AID (Type-1 diabetes)</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- CITATION -->
+<section id="citation">
+  <div class="wrap narrow">
+    <div class="kicker">Citation</div>
+    <h2>Cite this work.</h2>
+<pre class="bibtex"><span class="k">@inproceedings</span>{shaikh2026emma,
+  <span class="k">title</span>     = <span class="v">{EMMA: Extracting Multiple physical parameters from Multimodal Data}</span>,
+  <span class="k">author</span>    = <span class="v">{Shaikh, Farhat and Banerjee, Ayan and Gupta, Sandeep K. S.}</span>,
+  <span class="k">booktitle</span> = <span class="v">{Proceedings of the IEEE/CVF Conference on Computer Vision
+               and Pattern Recognition (CVPR)}</span>,
+  <span class="k">year</span>      = <span class="v">{2026}</span>
+}</pre>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>IMPACT Lab, Arizona State University</div>
+      <div style="display: flex; gap: 20px;">
+        <a href="https://github.com/ImpactLabASU/EMMA-CVPR2026" target="_blank" rel="noopener">GitHub</a>
+        <a href="42612.pdf" target="_blank" rel="noopener">Paper</a>
+        <a href="#citation">BibTeX</a>
+      </div>
+    </div>
+    <div class="ack">
+      <strong style="color: var(--ink);">Acknowledgments.</strong> Partially funded by
+      DARPA AMP (N6600120C4020), DARPA FIRE (P000050426), NSF FDT-Biotech (2436801),
+      and NIH R21 (1R21HL175632).
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Sync all gallery GIFs so they start animating at the same moment.
+  // Runs once when the #gallery section first becomes visible, then again
+  // whenever the user scrolls it back into view.
+  (function () {
+    var gallery = document.getElementById('gallery');
+    if (!gallery) return;
+    var imgs = gallery.querySelectorAll('.gt-pane img');
+    if (!imgs.length) return;
+
+    function resyncAll() {
+      // Preload first by caching current srcs, then blank+restore in one batch.
+      var srcs = [];
+      imgs.forEach(function (img, i) { srcs[i] = img.src; img.src = ''; });
+      requestAnimationFrame(function () {
+        imgs.forEach(function (img, i) { img.src = srcs[i]; });
+      });
+    }
+
+    // Initial sync when gallery comes into view.
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) resyncAll(); });
+      }, { threshold: 0.2 });
+      io.observe(gallery);
+    } else {
+      window.addEventListener('load', resyncAll);
+    }
+  })();
+</script>
+</body>
+</html>
