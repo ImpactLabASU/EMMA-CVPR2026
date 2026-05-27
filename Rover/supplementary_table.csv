@@ -1,0 +1,17 @@
+Section,Parameter,Ground Truth,LSTM,GRU,Transformer,LTC,Unit,Best
+Estimated Parameters,a,0.1780,0.1778,0.2016,0.1688,0.1629,m,LSTM
+Estimated Parameters,b,0.1440,0.1737,0.1947,0.1969,0.1329,m,LTC
+Estimated Parameters,r,0.2010,0.2121,0.1956,0.1880,0.2452,m,GRU
+Estimated Parameters,m,26.88,39.45,39.50,39.28,27.79,kg,LTC
+Estimated Parameters,CM,0.1120,0.1230,0.1076,0.0936,0.1286,m,GRU
+Percentage Error,a,-,0.09,13.28,5.19,8.50,%,LSTM
+Percentage Error,b,-,20.64,35.19,36.76,7.68,%,LTC
+Percentage Error,r,-,5.55,2.69,6.46,21.97,%,GRU
+Percentage Error,m,-,46.78,46.93,46.13,3.39,%,LTC
+Percentage Error,CM,-,9.85,3.92,16.43,14.85,%,GRU
+Percentage Error,Mean Error,-,16.58,20.40,22.19,11.28,%,LTC
+Training Metrics,Final Loss,-,14557.90,14560.55,14561.21,14561.23,-,LSTM
+Training Metrics,Training Time (s),-,25.07,22.36,62.83,63.58,seconds,GRU
+Training Metrics,Convergence Epoch,-,14,10,54,5,epochs,LTC
+Training Metrics,Mean % Error,-,16.58,20.40,22.19,11.28,%,LTC
+
