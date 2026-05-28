@@ -151,11 +151,14 @@ python3 extract_cgm_data.py   # reads CGMData.png, writes cgm_data.txt + a visua
 ## Citation
 
 ```bibtex
-@article{shaikh2026emma,
-  title   = {EMMA: Extracting Multiple physical parameters from Multimodal Data},
-  author  = {Shaikh, Farhat and Banerjee, Ayan and Gupta, Sandeep K. S.},
-  journal = {arXiv preprint arXiv:2605.24047},
-  year    = {2026},
-  url     = {https://arxiv.org/abs/2605.24047}
+@InProceedings{Shaikh_2026_CVPR,
+    author    = {Shaikh, Farhat and Banerjee, Ayan and Gupta, Sandeep},
+    title     = {EMMA: Extracting Multiple physical parameters from Multimodal Data},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2026},
+    pages     = {1716-1725}
 }
 ```
+
+Also on [arXiv](https://arxiv.org/abs/2605.24047).
