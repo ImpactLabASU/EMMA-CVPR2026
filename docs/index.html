@@ -755,7 +755,7 @@
       </figure>
 
       <figure class="gtile">
-        <figcaption class="gt-label">Rover <span>9 params &middot; 5 compared</span></figcaption>
+        <figcaption class="gt-label">Rover <span>5 params</span></figcaption>
         <div class="gt-bodies">
           <div class="gt-pane"><img src="media/rover-real.gif" alt="Real differential-drive rover video" loading="lazy" /><span class="gt-cap">actual</span></div>
           <div class="gt-pane"><img src="media/rover-sim.gif" alt="Rover trajectory simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
@@ -763,7 +763,7 @@
       </figure>
 
       <figure class="gtile">
-        <figcaption class="gt-label">Quadrotor <span>12 params &middot; 7 compared</span></figcaption>
+        <figcaption class="gt-label">Quadrotor <span>7 params</span></figcaption>
         <div class="gt-bodies">
           <div class="gt-pane"><img src="media/drone-real.gif" alt="Real quadrotor video" loading="lazy" /><span class="gt-cap">actual</span></div>
           <div class="gt-pane"><img src="media/drone-sim.gif" alt="Quadrotor trajectory simulated from recovered parameters" loading="lazy" /><span class="gt-cap">EMMA</span></div>
@@ -957,24 +957,24 @@
 
     <div class="res-grid">
       <div class="res-card">
-        <div class="res-num">100<span>+</span></div>
-        <div class="res-label">scenarios evaluated</div>
-        <div class="res-note">5 Delfys systems &middot; 75 videos, real-world rover &amp; quadrotor, plus simulation-chart case studies.</div>
+        <div class="res-num">8.8<span>%</span> &plusmn;&nbsp;1.7%</div>
+        <div class="res-label">mean error</div>
+        <div class="res-note"><em>Rover (5 params)</em></div>
       </div>
       <div class="res-card">
-        <div class="res-num">8.8<span>%</span></div>
-        <div class="res-label">mean error &mdash; rover (9 params, 5 compared)</div>
-        <div class="res-note">Recovery under hidden wheel-speed forcing inferred from audio. First work to report this setting.</div>
+        <div class="res-num">100<span>+</span> scenarios</div>
+        <div class="res-label">Delfys benchmark, rover, drone</div>
+        <div class="res-note"><em>&amp; simulation charts</em></div>
       </div>
       <div class="res-card">
-        <div class="res-num">15.9<span>%</span></div>
-        <div class="res-label">mean error &mdash; quadrotor (12 params, 7 compared)</div>
-        <div class="res-note">Recovery of thrust, torque, and geometry parameters on a real 6-DoF quadrotor.</div>
+        <div class="res-num">&gt; 10<span>&times;</span> lower</div>
+        <div class="res-label">implicit RMSE</div>
+        <div class="res-note"><em>vs PySINDy</em></div>
       </div>
       <div class="res-card">
-        <div class="res-num">&gt; 10<span>&times;</span></div>
-        <div class="res-label">lower error on implicit dynamics</div>
-        <div class="res-note">Versus PySINDy across Lotka&ndash;Volterra, Chaotic Lorenz, F8 Crusader, HIV, and AID simulations.</div>
+        <div class="res-num">107<span>&times;</span> smaller</div>
+        <div class="res-label">compact model</div>
+        <div class="res-note"><em>vs Delfys baseline</em></div>
       </div>
     </div>
 
@@ -982,7 +982,7 @@
       Compared against <b>PAIG</b>, <b>NIRPI</b>, and <b>Delfys</b> on the video benchmarks
       and <b>PySINDy</b> on the chart-based simulations. Rover and quadrotor under hidden
       forcing are reported as first-of-their-kind results. Full tables, ablations, and
-      per-system comparisons are in the <a href="https://arxiv.org/abs/2605.24047" target="_blank" rel="noopener">paper</a>.
+      per-system comparisons are in the <a href="https://drive.google.com/file/d/1i4cLcJMLSpkWIlu_tTcwcBqmbfPB34Pe/view" target="_blank" rel="noopener">paper</a>.
     </p>
 
     <h3 class="eval-sub">Supported systems</h3>
@@ -1032,14 +1032,12 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
   <span class="bibtex-copy-label">Copy</span>
 </button>
-<pre class="bibtex" id="bibtex-source"><span class="k">@InProceedings</span>{Shaikh_2026_CVPR,
-  <span class="k">author</span>    = <span class="v">{Shaikh, Farhat and Banerjee, Ayan and Gupta, Sandeep}</span>,
+<pre class="bibtex" id="bibtex-source"><span class="k">@inproceedings</span>{shaikh2026emma,
   <span class="k">title</span>     = <span class="v">{EMMA: Extracting Multiple physical parameters from Multimodal Data}</span>,
+  <span class="k">author</span>    = <span class="v">{Shaikh, Farhat and Banerjee, Ayan and Gupta, Sandeep K. S.}</span>,
   <span class="k">booktitle</span> = <span class="v">{Proceedings of the IEEE/CVF Conference on Computer Vision
                and Pattern Recognition (CVPR)}</span>,
-  <span class="k">month</span>     = <span class="v">{June}</span>,
-  <span class="k">year</span>      = <span class="v">{2026}</span>,
-  <span class="k">pages</span>     = <span class="v">{1716-1725}</span>
+  <span class="k">year</span>      = <span class="v">{2026}</span>
 }</pre>
 </div>
   </div>
@@ -1052,7 +1050,7 @@
       <div>IMPACT Lab, Arizona State University</div>
       <div style="display: flex; gap: 20px;">
         <a href="https://github.com/ImpactLabASU/EMMA-CVPR2026" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://arxiv.org/abs/2605.24047" target="_blank" rel="noopener">arXiv</a>
+        <a href="https://drive.google.com/file/d/1i4cLcJMLSpkWIlu_tTcwcBqmbfPB34Pe/view" target="_blank" rel="noopener">Paper</a>
         <a href="#citation">BibTeX</a>
       </div>
     </div>
