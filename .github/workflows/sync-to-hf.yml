@@ -12,10 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install Hugging Face CLI with Xet support
+      - name: Install Hugging Face CLI
         run: |
           python -m pip install --upgrade pip
-          pip install -U "huggingface_hub[cli]" hf_xet
+          pip install -U "huggingface_hub[cli]"
+
+      - name: Remove unsupported binary GIF before upload
+        run: |
+          rm -f docs/media/free-fall-real.gif
 
       - name: Upload to Hugging Face Space
         env:
