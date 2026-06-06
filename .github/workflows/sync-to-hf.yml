@@ -3,13 +3,19 @@ name: Sync to Hugging Face Space
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Push to Hugging Face
+
+      - name: Sync to Hugging Face
         uses: huggingface/hub-sync@main
         with:
           github_repo_id: ImpactLabASU/EMMA-CVPR2026
