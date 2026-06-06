@@ -1,0 +1,18 @@
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push to Hugging Face
+        uses: huggingface/hub-sync@main
+        with:
+          github_repo_id: ImpactLabASU/EMMA-CVPR2026
+          huggingface_repo_id: ASU-IMPACT-Lab/EMMA
+          repo_type: space
+          hf_token: ${{ secrets.HF_TOKEN }}
