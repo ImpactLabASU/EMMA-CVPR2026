@@ -13,6 +13,6 @@ jobs:
         uses: huggingface/hub-sync@main
         with:
           github_repo_id: ImpactLabASU/EMMA-CVPR2026
-          huggingface_repo_id: ASU-IMPACT-Lab/EMMA
+          huggingface_repo_id: ASU-IMPACT-Lab/EMMA-CVPR2026
           repo_type: space
           hf_token: ${{ secrets.HF_TOKEN }}
