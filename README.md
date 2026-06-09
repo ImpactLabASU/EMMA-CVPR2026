@@ -1,11 +1,4 @@
----
-title: EMMA CVPR 2026
-emoji: 🚀
-colorFrom: blue
-colorTo: indigo
-sdk: static
-pinned: false
----
+
 
 # EMMA: Extracting Multiple physical parameters from Multimodal Data
 
